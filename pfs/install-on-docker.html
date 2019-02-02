@@ -1,0 +1,487 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Always force latest IE rendering engine or request Chrome Frame -->
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300italic,400italic,400,600' rel='stylesheet' type='text/css'>
+  <!-- Use title if it's in the page YAML frontmatter -->
+  <title>
+      Installing PFS on Docker Desktop - Mac |
+    Pivotal Docs
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/stylesheets/all.css" rel="stylesheet" media="screen, print" />
+  <link href="/stylesheets/print.css" rel="stylesheet" media="print" />
+  <link href='/images/favicon.ico' rel='shortcut icon'>
+
+  <script src="/javascripts/all.js"></script>
+  
+
+<!-- Google Tag Manager -->
+<script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','');
+</script>
+
+
+<!-- <script type="text/javascript">
+  if (window.location.host === 'docs.pivotal.io') {
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '']);
+    _gaq.push(['_setDomainName', '']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script');
+      ga.type = 'text/javascript';
+      ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(ga, s);
+    })();
+  }
+</script> -->
+
+<script type="text/javascript">
+  var blackList = ['acceptance'];
+
+  blackList.forEach(function(blackListedEnv) {
+    if (document.URL.indexOf(blackListedEnv) > -1 && blackListedEnv != "") {
+      $('head').append('<meta name="hashtag" content="PivotalMoment">');
+    }
+  });
+</script>
+
+<!-- CrazyEgg Tracking Script -->
+<!--   <script type="text/javascript">
+  setTimeout(function(){var a=document.createElement("script");
+  var b=document.getElementsByTagName("script")[0];
+  a.src=document.location.protocol+"//script.crazyegg.com/pages/scripts/0055/2990.js?"+Math.floor(new Date().getTime()/3600000);
+  a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+  </script> -->
+
+<!-- Munchkin Marketo Script -->
+<!-- <script type="text/javascript">
+  (function() {
+    var didInit = false;
+
+    function initMunchkin() {
+      if (didInit === false) {
+        didInit = true;
+        Munchkin.init('625-IUJ-009');
+      }
+    }
+
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.async = true;
+    s.src = document.location.protocol + '//munchkin.marketo.net/munchkin.js';
+    s.onreadystatechange = function() {
+      if (this.readyState == 'complete' || this.readyState == 'loaded') {
+        initMunchkin();
+      }
+    };
+    s.onload = initMunchkin;
+    document.getElementsByTagName('head')[0].appendChild(s);
+  })();
+</script> -->
+
+</head>
+
+<body class="pfs pfs_install-on-docker has-subnav">
+
+<div class="viewport">
+  <div class='wrap'>
+    <script type="text/javascript">
+      document.domain = "";
+    </script>
+
+      <header class="global-header header header-layout js-bar-links">
+    <div class='super-nav'>
+      <div class='container-modified'>
+        <div class='header-links'>
+          <div class="header-item" id='docs-header-item'>
+            <a href='https://docs.pivotal.io'>Documentation</a>
+          </div>
+          <div class="header-item">
+            <a href="https://network.pivotal.io">Downloads</a>
+          </div>
+          <div class="header-item">
+            <a href="https://pivotal.io/support">Support</a>
+          </div>
+          <div class='header-item' id='contact-header-item'>
+            <a href='https://pivotal.io/contact'>Contact Us</a>
+          </div>
+          <div class='header-item'>
+            <a href="https://login.run.pivotal.io">Sign In</a>
+          </div>
+          <div class='header-item'>
+            <a href="https://account.run.pivotal.io/z/uaa/sign-up">Register</a>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    <div class='container-modified'>
+      <a href="/" class="global-header-title">
+        <svg class="pivotal-logo" xmlns="http://www.w3.org/2000/svg" width="174.72" height="40.94" viewBox="0 0 174.72 40.94"><path class="a" d="M38.77,6h-6.2V0h6.2Zm0,34.24H32.56V10.41h6.22Z"/><path class="a" d="M74.67,10.41,66,36.18c-1.49,4.22-4.15,4.76-6.3,4.76-3.19,0-5.11-1.47-6.24-4.75l-7.22-21.4H43.39V10.41h7.45l7.44,24c.33,1,.53,1.63,1.43,1.63s1.13-.62,1.43-1.63l7.59-24Z"/><path class="a" d="M90,10.41c8.05,0,13.66,5.31,13.66,12.92V28c0,7.6-5.61,12.92-13.66,12.92S76.32,35.62,76.32,28V23.33c0-7.61,5.62-12.92,13.67-12.92M90,36c4.81,0,7.8-3.64,7.8-8V23.33c0-4.37-3-8-7.8-8-5.1,0-7.8,3.64-7.8,8V28c0,4.37,2.82,8,7.8,8"/><path class="a" d="M153.32,11.36A53.46,53.46,0,0,0,141.8,10c-8.17,0-13.24,5.15-13.24,13.45v3.27c0,8.3,5.07,13.53,13.24,13.53.19,0,1.64,0,2.3-.06v-5l-2.3.07c-4.45,0-7.43-3.43-7.43-8.53V23.44c0-5.09,3-8.52,7.43-8.52a43.88,43.88,0,0,1,6.09.38l.33.08V40.24h6.22V12.4c0-.53,0-.74-1.13-1"/><rect class="a" x="160.44" width="6.22" height="40.24"/><path class="a" d="M10.92,0H0V40.24H6.47V5.59h3.79c.81,0,1.49,0,2.18.06,5.61.1,8.35,2.33,8.35,6.69,0,.17,0,.29,0,.47,0,4-2.21,6.71-8.32,6.71H10.67c0,1.55,0,4.41,0,5.41.63,0,1.22.06,1.82.06,8.78,0,15-3.45,15-12.11,0-.17,0-.35,0-.52C27.44,3.38,20.69,0,10.92,0"/><path class="a" d="M114.7,4v6.43h10.13v4.82H114.7V32.61c0,2.73,1.74,2.8,4.26,2.8h5.87v4.83h-7.94c-5.87,0-8.48-2.35-8.48-7.63V4.84Z"/><path class="a" d="M169.52,37.64a2.6,2.6,0,1,1,2.6,2.6A2.61,2.61,0,0,1,169.52,37.64Zm2.6-2.25a2.23,2.23,0,1,0,2.22,2.24A2.24,2.24,0,0,0,172.12,35.39ZM171.55,39h-.31V36.19h.8c.72,0,1.06.33,1.06.86a.82.82,0,0,1-.58.8l.74,1.17h-.36l-.68-1.1-.67,0Zm.51-1.34c.46,0,.75-.24.75-.62s-.25-.6-.79-.6h-.48V37.7Z"/></svg><svg class="documentation-letters" xmlns="http://www.w3.org/2000/svg" width="358.62" height="30.84" viewBox="0 0 358.62 30.84"><path class="a" d="M3.71,37.26V7.45h9.52c9.25,0,15.06,6.75,15.06,14.92S22.48,37.26,13.23,37.26Zm21.9-14.89c0-7-4.47-12.6-12.38-12.6h-7V34.93h7C21.1,34.93,25.61,29.35,25.61,22.37Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M33.52,22.37C33.52,13.66,39.24,7,48,7s14.48,6.7,14.48,15.41S56.72,37.79,48,37.79,33.52,31.09,33.52,22.37Zm26.28,0c0-7.55-4.64-13.09-11.8-13.09S36.21,14.82,36.21,22.37s4.6,13.1,11.79,13.1S59.8,29.88,59.8,22.37Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M67.67,22.37C67.67,13.21,74.33,7,82.78,7a13.38,13.38,0,0,1,10.86,5.27L91.5,13.61a10.84,10.84,0,0,0-8.72-4.33c-7,0-12.42,5.32-12.42,13.09s5.45,13.1,12.42,13.1a10.82,10.82,0,0,0,8.72-4.34l2.19,1.34a13.51,13.51,0,0,1-10.91,5.32C74.33,37.79,67.67,31.54,67.67,22.37Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M98.79,25.82V7.45h2.59V25.77c0,6,3.17,9.7,9,9.7s9-3.67,9-9.7V7.45H122V25.82c0,7.37-3.94,12-11.62,12S98.79,33.15,98.79,25.82Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M154.75,37.26V10.66l-10.87,26.6h-1L132,10.66v26.6h-2.55V7.45h3.8l10.14,24.8,10.1-24.8h3.85V37.26Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M164.76,37.26V7.45h18.91V9.77H167.31v11h16v2.32h-16v11.8h16.36v2.33Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M211.29,37.26,192.52,11.65V37.26H190V7.45h2.59L211.25,32.7V7.45h2.54V37.26Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M228.81,37.26V9.77h-9.74V7.45h22.08V9.77h-9.74V37.26Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M264.93,37.26,262,29.93H246.2l-2.95,7.33H240.3L252.51,7.45h3.17l12.2,29.81ZM254.11,10.17,247.05,27.6h14.08Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M276.78,37.26V9.77H267V7.45h22.07V9.77h-9.74V37.26Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M294.39,37.26V7.45h2.55V37.26Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M303.24,22.37C303.24,13.66,309,7,317.72,7s14.48,6.7,14.48,15.41-5.76,15.42-14.48,15.42S303.24,31.09,303.24,22.37Zm26.28,0c0-7.55-4.65-13.09-11.8-13.09s-11.8,5.54-11.8,13.09,4.61,13.1,11.8,13.1S329.52,29.88,329.52,22.37Z" transform="translate(-3.71 -6.96)"/><path class="a" d="M359.83,37.26,341.06,11.65V37.26h-2.55V7.45h2.59L359.78,32.7V7.45h2.55V37.26Z" transform="translate(-3.71 -6.96)"/></svg>
+      </a>
+      <div class="header-item embedded-searchbar">
+          <form method="get" action="/search">
+            <input name="q" placeholder="Search Pivotal Function Service v0.1.0" class="search-box" />
+              <input type="hidden" name="product_name" value="Pivotal Function Service" />
+              <input type="hidden" name="product_version" value="0.1.0"/>
+          </form>
+      </div>
+      <div class="btn-menu" data-behavior="MenuMobile"></div>
+      <div class='header-links mobile-only'>
+        <div class="header-item" id='docs-header-item'>
+          <a href='https://docs.pivotal.io'>Documentation</a>
+        </div>
+        <div class="header-item">
+          <a href="https://network.pivotal.io">Downloads</a>
+        </div>
+        <div class="header-item">
+          <a href="https://pivotal.io/support">Support</a>
+        </div>
+        <div class='header-item' id='contact-header-item'>
+          <a href='https://pivotal.io/contact'>Contact Us</a>
+        </div>
+        <div class='header-item'>
+          <a href="https://login.run.pivotal.io">Sign In</a>
+        </div>
+        <div class='header-item'>
+          <a href="https://account.run.pivotal.io/z/uaa/sign-up">Register</a>
+        </div>
+
+        <div class="header-item embedded-searchbar">
+            <form method="get" action="/search">
+              <input name="q" placeholder="Search Pivotal Function Service v0.1.0" class="search-box" />
+                <input type="hidden" name="product_name" value="Pivotal Function Service" />
+                <input type="hidden" name="product_version" value="0.1.0"/>
+            </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+
+    <div class="container">
+
+      <!--googleoff: index-->
+      <div id="sub-nav" class="js-sidenav nav-container" role="navigation">
+  <a class="sidenav-title" data-behavior="SubMenuMobile">
+    Doc Index
+  </a>
+<div class="nav-content">
+<ul>
+  <li><a href="/pfs/index.html">Pivotal Function Service (PFS)<br>Documentation</a></li>
+  <li><a href="/pfs/release-notes.html">Release Notes</a></li>
+</ul>
+<div><b>PFS Concepts</b></div>
+<ul>
+  <li><a href="/pfs/concepts-knative.html">Knative</a></li>
+  <li><a href="/pfs/concepts-functions-and-invokers.html">Functions and Invokers</a></li>
+  <li><a href="/pfs/concepts-buildpacks.html">Buildpacks</a></li>
+  <li><a href="/pfs/concepts-eventing.html">Eventing</a></li>
+  <li><a href="/pfs/concepts-registries.html">Registries</a></li>
+</ul>
+<div><b>Installing PFS</b></div>
+<ul>
+  <li><a href="/pfs/install-download.html">Download PFS from Pivotal Network</a></li>
+  <li><a href="/pfs/install-relocate-images.html">Relocate Container Images</a></li>
+  <li><a href="/pfs/install-on-pks.html">Install on PKS</a></li>
+  <li><a href="/pfs/install-on-gke.html">Install on GKE</a></li>
+  <li><a href="/pfs/install-on-minikube.html">Install on Minikube</a></li>
+  <li><a href="/pfs/install-on-docker.html">Install on Docker Desktop</a></li>
+  <li><a href="/pfs/install-uninstall.html">Uninstalling PFS</a></li>
+</ul>
+<div><b>Using PFS</b></div>
+<ul>
+  <li><a href="/pfs/using-pfs-cli.html">The pfs CLI</a></li>
+  <li><a href="/pfs/using-java-functions.html">Java Functions</a></li>
+  <li><a href="/pfs/using-javascript-functions.html">JavaScript Functions</a></li>
+  <li><a href="/pfs/using-command-functions.html">Command Functions</a></li>
+  <li><a href="/pfs/using-eventing-channels.html">Eventing Channels</a></li>
+  <li><a href="/pfs/troubleshooting.html">Troubleshooting PFS</a></li>
+</ul>
+<div><b>Reference</b></div>
+<ul>
+  <li><a href="/pfs/ref-google-cloud.html">Google Cloud</a></li>
+</ul>
+</div><!--end of nav-content-->
+</div><!--end of sub-nav-->
+
+      <!--googleon: index-->
+
+      <main class="content content-layout" id="js-content" role="main">
+        <a id="top"></a>
+          <div class="local-header title-container">
+    <div class="local-header version-info">
+      LATEST VERSION: v0.1.0 - <a href="https://docs.pivotal.io/pfs/release-notes.html">RELEASE NOTES</a>
+    </div>
+    <div class="local-header local-title clearfix">
+      <img src="/images/pfs.png">
+      <span class="local-header-title">Pivotal Function Service
+      </span>
+      <span onClick="return true" class="local-header local-version header-dropdown">
+        <a class="local-header header-dropdown-link">v0.1.0</a>
+        <span class="local-header header-dropdown-content">
+          <ul>
+                <li>
+                    <a href="https://docs.pivotal.io/pfs/install-on-docker.html">v0.1.0</a>
+                </li>
+          </ul>
+        </span>
+      </span>
+
+      <!-- search was here -->
+    </div>
+    <div class="local-header local-header-links">
+        <a href="https://docs.pivotal.io/archives/pfs-0.1.0.pdf">PDF</a>
+    </div>
+  </div>
+
+          <h1 class="title-container" >
+    Installing PFS on Docker Desktop - Mac
+  </h1>
+
+          <div id="js-quick-links" >
+            <div class="quick-links"><ul>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#registry-install">Install a local Registry</a></li>
+<li><a href="#kubernetes-install">Install Kubernetes</a></li>
+<li><a href="#pfs-install">Install PFS</a></li>
+<li><a href="#namespace">Prepare a Namespace</a></li>
+<li><a href="#localpath">Build from local-path</a></li>
+</ul></div>
+          </div>
+        <div class="to-top" id="js-to-top">
+          <a href="#top" title="back to top"></a>
+        </div>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549123039000"></span></p>
+
+<p>This topic describes how to install Pivotal Function Service (PFS) on a development machine using Docker Desktop - Mac.</p>
+
+<p class="note">If the version of Kubernetes in Docker Desktop falls behind that required by Knative, future versions of PFS may not work with Docker Desktop.</p>
+
+<h2><a id="requirements"></a> Requirements</h2>
+
+<ul>
+<li><a href="https://docs.docker.com/docker-for-mac/">Docker Desktop</a> has been <a href="https://hub.docker.com/editions/community/docker-ce-desktop-mac">installed</a> at version 2.0 or later.<br>
+NOTE: The <code>kubectl</code> CLI is included with Docker Desktop - Mac.</li>
+<li>The <code>pfs</code> CLI has been <a href="/pfs/install-download.html">downloaded and installed</a>.</li>
+<li>The PFS distribution has been <a href="/pfs/install-download.html">downloaded</a>. Container images from the distribution will be pushed to the local registry running in docker.</li>
+</ul>
+
+<h2><a id="registry-install"></a> Install a local Registry</h2>
+
+<p>Since PFS installations require a container registry, these instructions include running a local registry accessible from Kubernetes as well as from the host development machine at <code>registry.default.svc.cluster.local:5000</code>.</p>
+
+<ol>
+<li><p>Use the docker CLI to run the <a href="https://hub.docker.com/_/registry"><code>registry:2</code></a> container from Docker, listening on port <code>5000</code>, and persisting images in the <code>~/.registry/storage</code> directory.</p>
+<pre class="highlight shell_session"><code>docker run -d -p 5000:5000 --restart=always --name registry --volume ~/.registry/storage:/var/lib/registry registry:2
+</code></pre></li>
+<li><p>Edit the <code>/etc/hosts</code> file on your development machine, adding the name <code>registry.default.svc.cluster.local</code> on the same line as the entry for <code>localhost</code>. On macOS the file should look something like this.</p>
+<pre class="highlight plaintext"><code>##
+127.0.0.1       localhost registry.default.svc.cluster.local
+255.255.255.255 broadcasthost
+::1             localhost
+</code></pre></li>
+<li><p>Validate that the registry is running.</p>
+<pre class="highlight shell_session"><code>docker ps
+</code></pre>
+<pre class="highlight plaintext"><code>CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
+3574136cc831        registry:2          "/entrypoint.sh /etc…"   4 minutes ago       Up 4 minutes        0.0.0.0:5000-&gt;5000/tcp   registry
+</code></pre></li>
+<li><p>Validate that the registry at <code>registry.default.svc.cluster.local:5000</code> is reachable from your development machine.</p>
+<pre class="highlight shell_session"><code>curl registry.default.svc.cluster.local:5000/v2/_catalog
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"repositories"</span><span class="p">:[]}</span><span class="w">
+</span></code></pre></li>
+<li><p>Follow the instructions to <a href="/pfs/install-relocate-images.html">Push relocated images</a> to the local registry, making sure that the images are relocated to <code>registry.default.svc.cluster.local:5000</code>.</p></li>
+</ol>
+
+<h2><a id="kubernetes-install"></a> Install Kubernetes</h2>
+
+<ol>
+<li><p>Once Docker is installed and running, open <strong>Preferences&hellip;</strong> in the Docker menu. In the <strong>Advanced</strong> section configure your VM with 8GB of memory and 4 CPUs. Click <strong>Apply &amp; Restart</strong>.
+<img alt="Docker Desktop - Preferences - Advanced - 8GB Memory" src="images/docker-for-mac-vm-config.png" /></p></li>
+<li><p>In the <strong>Daemon</strong> section of Preferences, add <code>registry.default.svc.cluster.local:5000</code> to the list of insecure registries. 
+Click <strong>Apply &amp; Restart</strong>.<br>
+<img alt="Docker Desktop - Preferences - Daemon - Insecure registries" src="images/docker-for-mac-registry.png" /></p></li>
+<li><p>In the <strong>Kubernetes</strong> section of Preferences, enable Kubernetes, click <strong>Apply</strong>, and wait for the Kubernetes cluster to start running.
+<img alt="Docker Desktop - Preferences - Kubernetes - enable Kubernetes" src="images/docker-for-mac-kubernetes.png" /></p></li>
+<li><p>Use the <strong>Kubernetes</strong> menu to confirm that your kubectl context is set to <strong>docker-for-desktop</strong>.
+<img alt="Docker Desktop Menu - Kubernetes context set to docker-for-desktop" src="images/docker-for-mac-context.png" /></p></li>
+<li><p>In a separate terminal window, <a href="/pfs/troubleshooting.html">watch</a> the pods in the cluster.</p>
+<pre class="highlight shell_session"><code>watch -n 1 kubectl get pod --all-namespaces
+</code></pre>
+<pre class="highlight shell_session"><code>Every 1.0s: kubectl get --all-namespaces pod
+
+NAMESPACE     NAME                                         READY     STATUS    RESTARTS   AGE
+docker        compose-74649b4db6-8fxcz                     1/1       Running   0          17m
+docker        compose-api-79c7cc6fcf-2wb47                 1/1       Running   0          17m
+kube-system   etcd-docker-for-desktop                      1/1       Running   0          18m
+kube-system   kube-apiserver-docker-for-desktop            1/1       Running   0          18m
+kube-system   kube-controller-manager-docker-for-desktop   1/1       Running   0          18m
+kube-system   kube-dns-86f4d74b45-tbsmm                    3/3       Running   0          19m
+kube-system   kube-proxy-scm2q                             1/1       Running   0          19m
+kube-system   kube-scheduler-docker-for-desktop            1/1       Running   0          18m
+</code></pre></li>
+<li><p>Create an <code>externalname</code> kubernetes service called <code>registry</code> in the <code>default</code> namespace. Using the external name <code>host.docker.internal</code> will result in <code>registry.default.svc.cluster.local</code> resolving to the host machine, allowing container builds running in the cluster, to work with the local registry.</p>
+<pre class="highlight shell_session"><code>kubectl create service externalname registry --external-name=host.docker.internal --tcp=5000:5000
+</code></pre></li>
+</ol>
+
+<h2><a id="pfs-install"></a> Install PFS</h2>
+
+<p>Install PFS using the <code>pfs</code> CLI as shown below where the <code>-m</code> flag is the path to the previously relocated <code>manifest.yaml</code> file. The <code>--node-port</code> option is required for access to Kubernetes services via NodePort rather than LoadBalancer.</p>
+<pre class="highlight shell_session"><code>pfs system install -m pfs-relocated/manifest.yaml --node-port
+</code></pre>
+
+<p>Watch for all the pods to start running.</p>
+<pre class="highlight shell_session"><code>NAMESPACE          NAME                                          READY   STATUS    RESTARTS   AGE
+docker             compose-56897cc96b-5f8mk                      1/1     Running   0          4m47s
+docker             compose-api-5fb5fd58d-8w5jx                   1/1     Running   0          4m47s
+istio-system       istio-citadel-65787c5f88-k8skc                1/1     Running   0          51s
+istio-system       istio-egressgateway-89599fc6d-7t2px           1/1     Running   0          51s
+istio-system       istio-galley-598948bbdb-48pzb                 1/1     Running   0          51s
+istio-system       istio-ingressgateway-6599655c69-kmmk9         1/1     Running   0          51s
+istio-system       istio-pilot-9b7d6c6fc-9mrjt                   2/2     Running   0          51s
+istio-system       istio-policy-6bd98c94cf-plx2z                 2/2     Running   0          51s
+istio-system       istio-sidecar-injector-656777cf49-dkmrs       1/1     Running   0          51s
+istio-system       istio-telemetry-5dbf9b9f76-pwlg7              2/2     Running   0          51s
+istio-system       knative-ingressgateway-74c49fc6c5-vb6nt       1/1     Running   0          19s
+knative-build      build-controller-694c865db8-dhzqn             1/1     Running   0          20s
+knative-build      build-webhook-dd44545c7-ddbx2                 1/1     Running   0          20s
+knative-eventing   eventing-controller-65c497557-8nllt           1/1     Running   0          14s
+knative-eventing   stub-clusterbus-dispatcher-685b8cd58d-z87bj   2/2     Running   0          12s
+knative-eventing   webhook-f8cf95cd4-j8jkt                       1/1     Running   0          14s
+knative-serving    activator-5b64b5d9dc-cmk2k                    2/2     Running   0          18s
+knative-serving    activator-5b64b5d9dc-kgbfm                    2/2     Running   0          18s
+knative-serving    activator-5b64b5d9dc-x6q2j                    2/2     Running   0          18s
+knative-serving    autoscaler-56965cd44-4lt7l                    2/2     Running   0          18s
+knative-serving    controller-679c69c478-dhsqg                   1/1     Running   0          17s
+knative-serving    webhook-594976db4b-54lgr                      1/1     Running   0          17s
+kube-system        coredns-86c58d9df4-4nd5z                      1/1     Running   0          5m32s
+kube-system        coredns-86c58d9df4-tl7pz                      1/1     Running   0          5m32s
+kube-system        etcd-docker-desktop                           1/1     Running   0          4m43s
+kube-system        kube-apiserver-docker-desktop                 1/1     Running   0          4m48s
+kube-system        kube-controller-manager-docker-desktop        1/1     Running   0          4m48s
+kube-system        kube-proxy-wwsg6                              1/1     Running   0          5m32s
+kube-system        kube-scheduler-docker-desktop                 1/1     Running   0          4m48s
+</code></pre>
+
+<p>PFS is now installed. Next you need to prepare one or more namespaces for your functions.</p>
+
+<h2><a id="namespace"></a> Prepare a Namespace</h2>
+
+<p>Use the <code>pfs</code> CLI to initialize PFS resources in a Kubernetes namespace.
+Pass the path to the previously relocated manifest file using the <code>-m</code> flag.
+The command below initializes the <code>default</code> namespace.</p>
+<pre class="highlight shell_session"><code>pfs namespace init default -m pfs-relocated/manifest.yaml --no-secret
+</code></pre>
+
+<h2>Optional: Enable Outbound Network Access</h2>
+
+<p>Knative blocks all outbound traffic by default. For PFS functions to call services outside the cluster, it is necessary to enable outbound network access. Details on how to do that are given in the <a href="https://github.com/knative/docs/blob/master/serving/outbound-network-access.md">Knative guide for configuring outbound network access</a>.</p>
+
+<p>See <a href="/pfs/troubleshooting.html#verifyoutboundaccess">Troubleshooting PFS</a> for details on how to verify the outbound traffic configuration.</p>
+
+<p>You can now <a href="/pfs/using.html">create your first function</a>.</p>
+
+<h2><a id="localpath"></a> Build from local-path</h2>
+
+<p>You can use PFS to build functions from source in a local directory, instead of first committing the code to a repo on GitHub. Currently this requires that you use a non-private registry for the relocated images. This is the case when using Docker Desktop with a local registry.</p>
+
+<div class="note note">This capability will be extended to work with private registries in a future release.</div>
+
+<p>Building from a local directory requires the <code>PFS_BUILDER_IMAGE</code> and <code>PFS_PACKS_RUN_IMAGE</code> environment variables to be set.</p>
+
+<div class="note">Setting these environment variables will affect both local and cluster builds. We suggest opening a new terminal window before changing to a different Kubernetes context.</div>
+
+<p>Run the following using the path to the previously relocated manifest file:</p>
+<pre class="highlight shell_session"><code>export PFS_BUILDER_IMAGE=`grep -o "$REGISTRY/$REGISTRY_USER/projectriff-builder.*" \
+  pfs-relocated/image-manifest.yaml | awk -F": " '{print $1}'`
+
+export PFS_PACKS_RUN_IMAGE=`grep -o "$REGISTRY/$REGISTRY_USER/packs-run.*" \
+  pfs-relocated/image-manifest.yaml | awk -F": " '{print $1}'`
+</code></pre>
+
+<p>If you like, you can capture the values of the environment variables <code>PFS_BUILDER_IMAGE</code> and <code>PFS_PACKS_RUN_IMAGE</code> in a file as follows:</p>
+<pre class="highlight shell_session"><code>echo "export PFS_BUILDER_IMAGE=$PFS_BUILDER_IMAGE" &gt; pfs-local-path-env
+echo "export PFS_PACKS_RUN_IMAGE=$PFS_PACKS_RUN_IMAGE" &gt;&gt; pfs-local-path-env
+</code></pre>
+
+<p>You can set the environment variables whenever you need them by sourcing the file:</p>
+<pre class="highlight shell_session"><code>source pfs-local-path-env
+</code></pre>
+
+<p>To build a function from a local directory, use <code>--local-path</code> instead of <code>--git-repo</code>.</p>
+
+<div class="note note">The output from the build will log a message saying &ldquo;Pulling builder image&rdquo; and &ldquo;(use &#8209;&#8209;no&#8209;pull flag to skip this step)&rdquo;. This is logged by the pack library that the pfs CLI is using and is not exposed to be set directly by the user doing the build with the pfs CLI. The advantage of always pulling the builder image is that you get the latest version that could include important fixes.</div>
+
+<p>For example, assuming you are in a directory with a file called <code>square.js</code>:</p>
+<pre class="highlight javascript"><code><span class="c1">// square.js</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">=&gt;</span> <span class="nx">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">;</span>
+</code></pre>
+
+<p>then you can run this to create the function:</p>
+<pre class="highlight shell_session"><code>pfs function create square \
+  --local-path . \
+  --artifact square.js \
+  --image registry.default.svc.cluster.local:5000/testuser/square \
+  --verbose
+</code></pre>
+
+<p>If the build was successful, you should be able to invoke the function.</p>
+<pre class="highlight shell_session"><code>pfs service invoke square --text -- -w '\n' -d 7
+</code></pre>
+<pre class="highlight plaintext"><code>49
+</code></pre>
+
+<p>To update the function and deploy a new revision:</p>
+<pre class="highlight shell_session"><code>pfs function update square \
+  --local-path .
+</code></pre>
+
+        <div align="center"><hr><p></p></div>
+<div></div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<div id="scrim"></div>
+
+<div class="container">
+  <footer class="site-footer-links">
+    <div class="copyright">
+  <a href='https://pivotal.io/privacy-policy'  target="_blank">Privacy Policy</a> | 
+  <a href='https://pivotal.io/terms-of-use'  target="_blank">Terms of Use</a>
+  <div id="teconsent"></div>
+
+  <br/>
+  <a href='/'>Pivotal Documentation</a>
+  &copy; 2019 <a href='https://pivotal.io' target="_blank">Pivotal Software</a>, Inc. All Rights Reserved.
+  <br/>
+  <br/>
+</div>
+<div class="support">
+  Need help? <a href="http://support.pivotal.io" target="_blank">Visit Support</a>
+</div>
+
+
+  </footer>
+</div><!--end of container-->
+
+</body>
+</html>

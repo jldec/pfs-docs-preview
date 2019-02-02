@@ -1,0 +1,74 @@
+/* line 10, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+.tabcontent {
+  padding: .8em;
+  border: 1px solid #dfe5e8;
+  margin-bottomn: 1em;
+  animation: fade-in 1s; }
+
+/* line 16, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+.btn-group,
+.tab {
+  white-space: nowrap;
+  margin-top: 1em; }
+  /* line 20, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+  .btn-group .btn:first-child,
+  .btn-group .tablinks:first-child,
+  .tab .btn:first-child,
+  .tab .tablinks:first-child {
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0; }
+  /* line 27, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+  .btn-group .btn:not(:first-child):not(:last-child):not(.dropdown-toggle),
+  .btn-group .tablinks:not(:first-child):not(:last-child):not(.dropdown-toggle),
+  .tab .btn:not(:first-child):not(:last-child):not(.dropdown-toggle),
+  .tab .tablinks:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+    border-radius: 0; }
+
+/* line 32, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+.btn.btn-default,
+.tab .tablinks {
+  background-color: transparent;
+  color: #607580;
+  border-color: #607580; }
+  /* line 37, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+  .btn.btn-default.active, .btn.btn-default:hover,
+  .tab .tablinks.active,
+  .tab .tablinks:hover {
+    background-color: #607580;
+    color: #fff;
+    border-color: #607580; }
+
+/* line 44, /Users/jleschner/workspace/docs-book-pfs/output/master_middleman/source/stylesheets/book-styles.css.scss */
+.btn,
+.tablinks {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  position: relative;
+  height: 32px;
+  padding: 0 16px;
+  vertical-align: middle;
+  color: #607580;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 2px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all .2s ease-out;
+  transition-property: background-color,color,opacity,border; }
+
+@keyframes fade-in {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
