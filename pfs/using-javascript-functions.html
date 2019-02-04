@@ -271,7 +271,7 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p><strong>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549123039000"></span></strong></p>
+        <p><strong>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549315924000"></span></strong></p>
 
 <p>This topic provides an overview of how to write JavaScript functions for Pivotal Function Service (PFS).
 For more in-depth coverage see the riff <a href="https://github.com/projectriff/node-function-invoker/blob/master/README.md">node-function-invoker</a> on GitHub.</p>
@@ -288,8 +288,8 @@ For more in-depth coverage see the riff <a href="https://github.com/projectriff/
 export REGISTRY_USER=$(gcloud config get-value core/project)
 </code></pre>
 
-<p>For the local registry used with <a href="/pfs/install-on-minikube.html">Minikube</a> or <a href="/pfs/install-on-docker.html">Docker Desktop</a>, use registry name <code>registry.default.svc.cluster.local:5000</code> and a dummy username.</p>
-<pre class="highlight shell_session"><code>export REGISTRY=registry.default.svc.cluster.local:5000
+<p>For the local registry used with <a href="/pfs/install-on-minikube.html">Minikube</a> or <a href="/pfs/install-on-docker.html">Docker Desktop</a>, use registry name <code>registry.pfs.svc.cluster.local:5000</code> and a dummy username.</p>
+<pre class="highlight shell_session"><code>export REGISTRY=registry.pfs.svc.cluster.local:5000
 export REGISTRY_USER=testuser
 </code></pre>
 

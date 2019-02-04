@@ -266,7 +266,7 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549123039000"></span></p>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549315924000"></span></p>
 
 <p>This topic describes how to install Pivotal Function Service (PFS) on your development machine using <code>minikube</code>.</p>
 
@@ -290,30 +290,30 @@
 
 <h2><a id="registry-install"></a> Install a local Registry</h2>
 
-<p>Since PFS installations require a container registry, these instructions include running a local registry accessible from Kubernetes as well as from the host development machine at <code>registry.default.svc.cluster.local:5000</code>.</p>
+<p>Since PFS installations require a container registry, these instructions include running a local registry accessible from Kubernetes as well as from the host development machine at <code>registry.pfs.svc.cluster.local:5000</code>.</p>
 
 <ol>
 <li><p>Use the docker CLI to run the <a href="https://hub.docker.com/_/registry"><code>registry:2</code></a> container from Docker, listening on port <code>5000</code>, and persisting images in the <code>~/.registry/storage</code> directory.</p>
-<pre class="highlight shell_session"><code>docker run -d -p 5000:5000 --restart=always --name registry --volume ~/.registry/storage:/var/lib/registry registry:2
+<pre class="highlight shell_session"><code>docker run -d -p 5000:5000 --restart=always --volume ~/.registry/storage:/var/lib/registry registry:2
 </code></pre></li>
-<li><p>Edit the <code>/etc/hosts</code> file on your development machine, adding the name <code>registry.default.svc.cluster.local</code> on the same line as the entry for <code>localhost</code>. On macOS the file should look something like this.</p>
+<li><p>Edit the <code>/etc/hosts</code> file on your development machine, adding the name <code>registry.pfs.svc.cluster.local</code> on the same line as the entry for <code>localhost</code>. On macOS the file should look something like this.</p>
 <pre class="highlight plaintext"><code>##
-127.0.0.1       localhost registry.default.svc.cluster.local
+127.0.0.1       localhost registry.pfs.svc.cluster.local
 255.255.255.255 broadcasthost
 ::1             localhost
 </code></pre></li>
 <li><p>Validate that the registry is running.</p>
 <pre class="highlight shell_session"><code>docker ps
 </code></pre>
-<pre class="highlight plaintext"><code>CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
-3574136cc831        registry:2          "/entrypoint.sh /etc…"   4 minutes ago       Up 4 minutes        0.0.0.0:5000-&gt;5000/tcp   registry
+<pre class="highlight plaintext"><code>CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+02ea46d51f58        registry:2          "/entrypoint.sh /etc…"   About an hour ago   Up About a minute   0.0.0.0:5000-&gt;5000/tcp   sharp_pike
 </code></pre></li>
-<li><p>Validate that the registry at <code>registry.default.svc.cluster.local:5000</code> is reachable from your development machine.</p>
-<pre class="highlight shell_session"><code>curl registry.default.svc.cluster.local:5000/v2/_catalog
+<li><p>Validate that the registry at <code>registry.pfs.svc.cluster.local:5000</code> is reachable from your development machine.</p>
+<pre class="highlight shell_session"><code>curl registry.pfs.svc.cluster.local:5000/v2/_catalog
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="nt">"repositories"</span><span class="p">:[]}</span><span class="w">
 </span></code></pre></li>
-<li><p>Follow the instructions to <a href="/pfs/install-relocate-images.html">Push relocated images</a> to the local registry, making sure that the images are relocated to <code>registry.default.svc.cluster.local:5000</code>.</p></li>
+<li><p>Follow the instructions to <a href="/pfs/install-relocate-images.html">Push relocated images</a> to the local registry, making sure that the images are relocated to <code>registry.pfs.svc.cluster.local:5000</code>.</p></li>
 </ol>
 
 <h2><a id="kubernetes-install"></a> Install Kubernetes</h2>
@@ -325,7 +325,7 @@
   --bootstrapper=kubeadm \
   --vm-driver=hyperkit \
   --extra-config=apiserver.enable-admission-plugins="LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook" \
-  --insecure-registry registry.default.svc.cluster.local:5000
+  --insecure-registry registry.pfs.svc.cluster.local:5000
 </code></pre>
 
 <p><strong>Note:</strong> for Linux use <code>kvm2</code> instead of <code>hyperkit</code> for the <code>--vm-driver</code></p></li>
@@ -364,21 +364,24 @@ kube-system   storage-provisioner                1/1     Running   0          68
 <pre class="highlight shell_session"><code>ifconfig lo:0 $DEV_IP
 </code></pre>
 
-<p>Note that the alias will need to be reestablished when you restart your machine. This can be avoided by using say a <a href="https://apple.stackexchange.com/questions/296647/how-do-i-create-a-static-permanent-ifconfig-alias">launchdeamon</a> on MacOS or by editing <code>/etc/network/interfaces</code> on linux.</p></li>
+<p>Note that the alias will need to be reestablished when you restart your machine. This can be avoided by using say a <a href="https://apple.stackexchange.com/questions/296647/how-do-i-create-a-static-permanent-ifconfig-alias">launchdeamon</a> on MacOS or by editing <code>/etc/network/interfaces</code> on Linux.</p></li>
 <li><p>Add an entry to /etc/hosts inside the minikube VM, pointing the registry to the IP address of the host. 
-This will result in <code>registry.default.svc.cluster.local</code> resolving to the host machine allowing the docker
+This will result in <code>registry.pfs.svc.cluster.local</code> resolving to the host machine allowing the docker
 daemon in minikube to pull images from the local registry.</p>
 <pre class="highlight shell_session"><code>minikube ssh \
-"echo \"$DEV_IP       registry.default.svc.cluster.local\" \
+"echo \"$DEV_IP       registry.pfs.svc.cluster.local\" \
 | sudo tee -a  /etc/hosts"
 </code></pre></li>
-<li><p>Create a kubernetes service without selectors called <code>registry</code> in the <code>default</code> namespace and an endpoint with the same name pointing to the IP address of your development machine. This will result in <code>registry.default.svc.cluster.local</code> resolving to the host machine, allowing container builds running in the cluster, to work with the local registry.</p>
-<pre class="highlight shell_session"><code>cat &lt;&lt;EOF | kubectl create -f -
+<li><p>Create a kubernetes service without selectors called <code>registry</code> in the <code>pfs</code> namespace and an endpoint with the same name pointing to the IP address of your development machine. This will result in <code>registry.pfs.svc.cluster.local</code> resolving to the host machine, allowing container builds running in the cluster, to work with the local registry.</p>
+<pre class="highlight shell_session"><code>kubectl create namespace pfs
+
+cat &lt;&lt;EOF | kubectl create -f -
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: registry
+  namespace: pfs
 spec:
   ports:
   - protocol: TCP
@@ -389,6 +392,7 @@ kind: Endpoints
 apiVersion: v1
 metadata:
   name: registry
+  namespace: pfs
 subsets:
   - addresses:
       - ip: $DEV_IP
@@ -495,7 +499,7 @@ echo "export PFS_PACKS_RUN_IMAGE=$PFS_PACKS_RUN_IMAGE" &gt;&gt; pfs-local-path-e
 <pre class="highlight shell_session"><code>pfs function create square \
   --local-path . \
   --artifact square.js \
-  --image registry.default.svc.cluster.local:5000/testuser/square \
+  --image registry.pfs.svc.cluster.local:5000/testuser/square \
   --verbose
 </code></pre>
 

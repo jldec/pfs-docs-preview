@@ -259,7 +259,7 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549123039000"></span></p>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549315924000"></span></p>
 
 <p>This topic describes how to <a href="/pfs/concepts-registries.html">relocate</a> the container images supplied in the PFS distribution.</p>
 
@@ -295,8 +295,8 @@ export REGISTRY_USER=$(gcloud config get-value core/project)
 
 <div class="note">To install PFS on PKS or GKE, use the same GCP Project for Google Container Registry as you will use for your PKS or GKE cluster.</div>
 
-<p>For the local registry used with <a href="/pfs/install-on-minikube.html">Minikube</a> or <a href="/pfs/install-on-docker.html">Docker Desktop</a>, use registry name <code>registry.default.svc.cluster.local:5000</code> and a dummy username.</p>
-<pre class="highlight shell_session"><code>export REGISTRY=registry.default.svc.cluster.local:5000
+<p>For the local registry used with <a href="/pfs/install-on-minikube.html">Minikube</a> or <a href="/pfs/install-on-docker.html">Docker Desktop</a>, use registry name <code>registry.pfs.svc.cluster.local:5000</code> and a dummy username.</p>
+<pre class="highlight shell_session"><code>export REGISTRY=registry.pfs.svc.cluster.local:5000
 export REGISTRY_USER=testuser
 </code></pre>
 

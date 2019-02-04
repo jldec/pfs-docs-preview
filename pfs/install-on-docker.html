@@ -266,7 +266,7 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549123039000"></span></p>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549315924000"></span></p>
 
 <p>This topic describes how to install Pivotal Function Service (PFS) on a development machine using Docker Desktop - Mac.</p>
 
@@ -283,30 +283,30 @@ NOTE: The <code>kubectl</code> CLI is included with Docker Desktop - Mac.</li>
 
 <h2><a id="registry-install"></a> Install a local Registry</h2>
 
-<p>Since PFS installations require a container registry, these instructions include running a local registry accessible from Kubernetes as well as from the host development machine at <code>registry.default.svc.cluster.local:5000</code>.</p>
+<p>Since PFS installations require a container registry, these instructions include running a local registry accessible from Kubernetes as well as from the host development machine at <code>registry.pfs.svc.cluster.local:5000</code>.</p>
 
 <ol>
 <li><p>Use the docker CLI to run the <a href="https://hub.docker.com/_/registry"><code>registry:2</code></a> container from Docker, listening on port <code>5000</code>, and persisting images in the <code>~/.registry/storage</code> directory.</p>
-<pre class="highlight shell_session"><code>docker run -d -p 5000:5000 --restart=always --name registry --volume ~/.registry/storage:/var/lib/registry registry:2
+<pre class="highlight shell_session"><code>docker run -d -p 5000:5000 --restart=always --volume ~/.registry/storage:/var/lib/registry registry:2
 </code></pre></li>
-<li><p>Edit the <code>/etc/hosts</code> file on your development machine, adding the name <code>registry.default.svc.cluster.local</code> on the same line as the entry for <code>localhost</code>. On macOS the file should look something like this.</p>
+<li><p>Edit the <code>/etc/hosts</code> file on your development machine, adding the name <code>registry.pfs.svc.cluster.local</code> on the same line as the entry for <code>localhost</code>. On macOS the file should look something like this.</p>
 <pre class="highlight plaintext"><code>##
-127.0.0.1       localhost registry.default.svc.cluster.local
+127.0.0.1       localhost registry.pfs.svc.cluster.local
 255.255.255.255 broadcasthost
 ::1             localhost
 </code></pre></li>
 <li><p>Validate that the registry is running.</p>
 <pre class="highlight shell_session"><code>docker ps
 </code></pre>
-<pre class="highlight plaintext"><code>CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
-3574136cc831        registry:2          "/entrypoint.sh /etc…"   4 minutes ago       Up 4 minutes        0.0.0.0:5000-&gt;5000/tcp   registry
+<pre class="highlight plaintext"><code>CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+02ea46d51f58        registry:2          "/entrypoint.sh /etc…"   About an hour ago   Up About a minute   0.0.0.0:5000-&gt;5000/tcp   sharp_pike
 </code></pre></li>
-<li><p>Validate that the registry at <code>registry.default.svc.cluster.local:5000</code> is reachable from your development machine.</p>
-<pre class="highlight shell_session"><code>curl registry.default.svc.cluster.local:5000/v2/_catalog
+<li><p>Validate that the registry at <code>registry.pfs.svc.cluster.local:5000</code> is reachable from your development machine.</p>
+<pre class="highlight shell_session"><code>curl registry.pfs.svc.cluster.local:5000/v2/_catalog
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="nt">"repositories"</span><span class="p">:[]}</span><span class="w">
 </span></code></pre></li>
-<li><p>Follow the instructions to <a href="/pfs/install-relocate-images.html">Push relocated images</a> to the local registry, making sure that the images are relocated to <code>registry.default.svc.cluster.local:5000</code>.</p></li>
+<li><p>Follow the instructions to <a href="/pfs/install-relocate-images.html">Push relocated images</a> to the local registry, making sure that the images are relocated to <code>registry.pfs.svc.cluster.local:5000</code>.</p></li>
 </ol>
 
 <h2><a id="kubernetes-install"></a> Install Kubernetes</h2>
@@ -314,7 +314,7 @@ NOTE: The <code>kubectl</code> CLI is included with Docker Desktop - Mac.</li>
 <ol>
 <li><p>Once Docker is installed and running, open <strong>Preferences&hellip;</strong> in the Docker menu. In the <strong>Advanced</strong> section configure your VM with 8GB of memory and 4 CPUs. Click <strong>Apply &amp; Restart</strong>.
 <img alt="Docker Desktop - Preferences - Advanced - 8GB Memory" src="images/docker-for-mac-vm-config.png" /></p></li>
-<li><p>In the <strong>Daemon</strong> section of Preferences, add <code>registry.default.svc.cluster.local:5000</code> to the list of insecure registries. 
+<li><p>In the <strong>Daemon</strong> section of Preferences, add <code>registry.pfs.svc.cluster.local:5000</code> to the list of insecure registries. 
 Click <strong>Apply &amp; Restart</strong>.<br>
 <img alt="Docker Desktop - Preferences - Daemon - Insecure registries" src="images/docker-for-mac-registry.png" /></p></li>
 <li><p>In the <strong>Kubernetes</strong> section of Preferences, enable Kubernetes, click <strong>Apply</strong>, and wait for the Kubernetes cluster to start running.
@@ -324,20 +324,20 @@ Click <strong>Apply &amp; Restart</strong>.<br>
 <li><p>In a separate terminal window, <a href="/pfs/troubleshooting.html">watch</a> the pods in the cluster.</p>
 <pre class="highlight shell_session"><code>watch -n 1 kubectl get pod --all-namespaces
 </code></pre>
-<pre class="highlight shell_session"><code>Every 1.0s: kubectl get --all-namespaces pod
-
-NAMESPACE     NAME                                         READY     STATUS    RESTARTS   AGE
-docker        compose-74649b4db6-8fxcz                     1/1       Running   0          17m
-docker        compose-api-79c7cc6fcf-2wb47                 1/1       Running   0          17m
-kube-system   etcd-docker-for-desktop                      1/1       Running   0          18m
-kube-system   kube-apiserver-docker-for-desktop            1/1       Running   0          18m
-kube-system   kube-controller-manager-docker-for-desktop   1/1       Running   0          18m
-kube-system   kube-dns-86f4d74b45-tbsmm                    3/3       Running   0          19m
-kube-system   kube-proxy-scm2q                             1/1       Running   0          19m
-kube-system   kube-scheduler-docker-for-desktop            1/1       Running   0          18m
+<pre class="highlight shell_session"><code>NAMESPACE     NAME                                     READY   STATUS    RESTARTS   AGE
+docker        compose-56897cc96b-h5wht                 1/1     Running   0          2m50s
+docker        compose-api-5fb5fd58d-d5pmg              1/1     Running   0          2m50s
+kube-system   coredns-86c58d9df4-pzjdx                 1/1     Running   0          3m44s
+kube-system   coredns-86c58d9df4-zjgd6                 1/1     Running   0          3m44s
+kube-system   etcd-docker-desktop                      1/1     Running   0          2m55s
+kube-system   kube-apiserver-docker-desktop            1/1     Running   0          2m51s
+kube-system   kube-controller-manager-docker-desktop   1/1     Running   0          2m53s
+kube-system   kube-proxy-ngqlq                         1/1     Running   0          3m44s
+kube-system   kube-scheduler-docker-desktop            1/1     Running   0          2m55s
 </code></pre></li>
-<li><p>Create an <code>externalname</code> kubernetes service called <code>registry</code> in the <code>default</code> namespace. Using the external name <code>host.docker.internal</code> will result in <code>registry.default.svc.cluster.local</code> resolving to the host machine, allowing container builds running in the cluster, to work with the local registry.</p>
-<pre class="highlight shell_session"><code>kubectl create service externalname registry --external-name=host.docker.internal --tcp=5000:5000
+<li><p>Create an <code>externalname</code> kubernetes service called <code>registry</code> in the <code>pfs</code> namespace. Using the external name <code>host.docker.internal</code> will result in <code>registry.pfs.svc.cluster.local</code> resolving to the host machine, allowing container builds running in the cluster, to work with the local registry.</p>
+<pre class="highlight shell_session"><code>kubectl create namespace pfs
+kubectl create service externalname registry -n pfs --external-name=host.docker.internal --tcp=5000:5000
 </code></pre></li>
 </ol>
 
@@ -349,35 +349,35 @@ kube-system   kube-scheduler-docker-for-desktop            1/1       Running   0
 
 <p>Watch for all the pods to start running.</p>
 <pre class="highlight shell_session"><code>NAMESPACE          NAME                                          READY   STATUS    RESTARTS   AGE
-docker             compose-56897cc96b-5f8mk                      1/1     Running   0          4m47s
-docker             compose-api-5fb5fd58d-8w5jx                   1/1     Running   0          4m47s
-istio-system       istio-citadel-65787c5f88-k8skc                1/1     Running   0          51s
-istio-system       istio-egressgateway-89599fc6d-7t2px           1/1     Running   0          51s
-istio-system       istio-galley-598948bbdb-48pzb                 1/1     Running   0          51s
-istio-system       istio-ingressgateway-6599655c69-kmmk9         1/1     Running   0          51s
-istio-system       istio-pilot-9b7d6c6fc-9mrjt                   2/2     Running   0          51s
-istio-system       istio-policy-6bd98c94cf-plx2z                 2/2     Running   0          51s
-istio-system       istio-sidecar-injector-656777cf49-dkmrs       1/1     Running   0          51s
-istio-system       istio-telemetry-5dbf9b9f76-pwlg7              2/2     Running   0          51s
-istio-system       knative-ingressgateway-74c49fc6c5-vb6nt       1/1     Running   0          19s
-knative-build      build-controller-694c865db8-dhzqn             1/1     Running   0          20s
-knative-build      build-webhook-dd44545c7-ddbx2                 1/1     Running   0          20s
-knative-eventing   eventing-controller-65c497557-8nllt           1/1     Running   0          14s
-knative-eventing   stub-clusterbus-dispatcher-685b8cd58d-z87bj   2/2     Running   0          12s
-knative-eventing   webhook-f8cf95cd4-j8jkt                       1/1     Running   0          14s
-knative-serving    activator-5b64b5d9dc-cmk2k                    2/2     Running   0          18s
-knative-serving    activator-5b64b5d9dc-kgbfm                    2/2     Running   0          18s
-knative-serving    activator-5b64b5d9dc-x6q2j                    2/2     Running   0          18s
-knative-serving    autoscaler-56965cd44-4lt7l                    2/2     Running   0          18s
-knative-serving    controller-679c69c478-dhsqg                   1/1     Running   0          17s
-knative-serving    webhook-594976db4b-54lgr                      1/1     Running   0          17s
-kube-system        coredns-86c58d9df4-4nd5z                      1/1     Running   0          5m32s
-kube-system        coredns-86c58d9df4-tl7pz                      1/1     Running   0          5m32s
-kube-system        etcd-docker-desktop                           1/1     Running   0          4m43s
-kube-system        kube-apiserver-docker-desktop                 1/1     Running   0          4m48s
-kube-system        kube-controller-manager-docker-desktop        1/1     Running   0          4m48s
-kube-system        kube-proxy-wwsg6                              1/1     Running   0          5m32s
-kube-system        kube-scheduler-docker-desktop                 1/1     Running   0          4m48s
+docker             compose-56897cc96b-h5wht                      1/1     Running   0          5m50s
+docker             compose-api-5fb5fd58d-d5pmg                   1/1     Running   0          5m50s
+istio-system       istio-citadel-745579f6cf-kvsw2                1/1     Running   0          50s
+istio-system       istio-egressgateway-cff9d674c-r8xsj           1/1     Running   0          51s
+istio-system       istio-galley-85d9445657-5jxxn                 1/1     Running   0          51s
+istio-system       istio-ingressgateway-644464f8b6-2wds8         1/1     Running   0          51s
+istio-system       istio-pilot-5554fc766f-xfpxx                  2/2     Running   0          51s
+istio-system       istio-policy-5df6954f99-stlt4                 2/2     Running   0          51s
+istio-system       istio-sidecar-injector-54dbf88bb4-nn5v2       1/1     Running   0          50s
+istio-system       istio-telemetry-6fc4664d8d-k2ddv              2/2     Running   0          51s
+istio-system       knative-ingressgateway-67467555b4-wmwlx       1/1     Running   0          19s
+knative-build      build-controller-7b959d87b6-jvbdt             1/1     Running   0          19s
+knative-build      build-webhook-695c4c5994-7pw4m                1/1     Running   0          19s
+knative-eventing   eventing-controller-8758cc8f6-9j9zg           1/1     Running   0          16s
+knative-eventing   stub-clusterbus-dispatcher-59654899ff-g4svb   2/2     Running   0          13s
+knative-eventing   webhook-7676965889-n5wr8                      1/1     Running   0          16s
+knative-serving    activator-665b65644d-5xs8j                    2/2     Running   0          18s
+knative-serving    activator-665b65644d-hwlqj                    2/2     Running   0          18s
+knative-serving    activator-665b65644d-p59lj                    2/2     Running   0          18s
+knative-serving    autoscaler-55468d4545-lcdjd                   2/2     Running   0          18s
+knative-serving    controller-7f8c98dd7f-jx49q                   1/1     Running   0          18s
+knative-serving    webhook-67964c5479-7k8xv                      1/1     Running   0          18s
+kube-system        coredns-86c58d9df4-pzjdx                      1/1     Running   0          6m44s
+kube-system        coredns-86c58d9df4-zjgd6                      1/1     Running   0          6m44s
+kube-system        etcd-docker-desktop                           1/1     Running   0          5m55s
+kube-system        kube-apiserver-docker-desktop                 1/1     Running   0          5m51s
+kube-system        kube-controller-manager-docker-desktop        1/1     Running   0          5m53s
+kube-system        kube-proxy-ngqlq                              1/1     Running   0          6m44s
+kube-system        kube-scheduler-docker-desktop                 1/1     Running   0          5m55s
 </code></pre>
 
 <p>PFS is now installed. Next you need to prepare one or more namespaces for your functions.</p>
@@ -438,7 +438,7 @@ echo "export PFS_PACKS_RUN_IMAGE=$PFS_PACKS_RUN_IMAGE" &gt;&gt; pfs-local-path-e
 <pre class="highlight shell_session"><code>pfs function create square \
   --local-path . \
   --artifact square.js \
-  --image registry.default.svc.cluster.local:5000/testuser/square \
+  --image registry.pfs.svc.cluster.local:5000/testuser/square \
   --verbose
 </code></pre>
 
