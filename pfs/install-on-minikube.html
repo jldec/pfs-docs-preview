@@ -266,7 +266,7 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549315924000"></span></p>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549328058000"></span></p>
 
 <p>This topic describes how to install Pivotal Function Service (PFS) on your development machine using <code>minikube</code>.</p>
 
@@ -360,8 +360,8 @@ kube-system   storage-provisioner                1/1     Running   0          68
 <pre class="highlight shell_session"><code>sudo ifconfig lo0 alias $DEV_IP
 </code></pre>
 
-<p>On Linux:</p>
-<pre class="highlight shell_session"><code>ifconfig lo:0 $DEV_IP
+<p>Or on Linux:</p>
+<pre class="highlight shell_session"><code>sudo ifconfig lo:0 $DEV_IP
 </code></pre>
 
 <p>Note that the alias will need to be reestablished when you restart your machine. This can be avoided by using say a <a href="https://apple.stackexchange.com/questions/296647/how-do-i-create-a-static-permanent-ifconfig-alias">launchdeamon</a> on MacOS or by editing <code>/etc/network/interfaces</code> on Linux.</p></li>
