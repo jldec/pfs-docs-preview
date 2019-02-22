@@ -9,7 +9,7 @@
   <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300italic,400italic,400,600' rel='stylesheet' type='text/css'>
   <!-- Use title if it's in the page YAML frontmatter -->
   <title>
-      Installing PFS on GKE |
+      Installing PFS on PKS on GCP |
     Pivotal Docs
   </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -94,7 +94,7 @@
 
 </head>
 
-<body class="pfs pfs_install-on-gke has-subnav">
+<body class="pfs pfs_install-on-pks-gcp has-subnav">
 
 <div class="viewport">
   <div class='wrap'>
@@ -237,7 +237,7 @@
         <span class="local-header header-dropdown-content">
           <ul>
                 <li>
-                    <a href="https://docs.pivotal.io/pfs/install-on-gke.html">v0.1.0</a>
+                    <a href="https://docs.pivotal.io/pfs/install-on-pks-gcp.html">v0.1.0</a>
                 </li>
           </ul>
         </span>
@@ -251,7 +251,7 @@
   </div>
 
           <h1 class="title-container" >
-    Installing PFS on GKE
+    Installing PFS on PKS on GCP
   </h1>
 
           <div id="js-quick-links" >
@@ -260,18 +260,21 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1546036914000"></span></p>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1550174151000"></span></p>
 
-<p>This topic describes how to install Pivotal Function Service (PFS) on Google Kubernetes Engine (GKE).</p>
+<p>This topic describes how to install Pivotal Function Service (PFS) on Pivotal Container Service (PKS) deployed to GCP.</p>
+
+<div class="note note">PKS can be deployed on other <a href="https://docs.pivotal.io/runtimes/pks/1-2/release-notes.html#feature-support-by-iaas">IaaS platforms</a> including Azure and AWS. These platforms will also be supported in future releases of PFS.</div>
 
 <h2>Requirements</h2>
 
 <ul>
+<li>The <code>pks</code> CLI has been installed.</li>
 <li>The <code>kubectl</code> CLI has been <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/">installed</a> at version 1.10 or later.</li>
 <li>The Google Cloud SDK which provides the <code>gcloud</code> CLI has been installed.</li>
 <li>The <code>pfs</code> CLI has been <a href="/pfs/install-download.html">downloaded and installed</a>.</li>
 <li>PFS container images have been <a href="/pfs/install-download.html">downloaded</a> and successfully <a href="/pfs/install-relocate-images.html">relocated</a> to a GCR repo in the current GCP project.</li>
-<li>The relocated manifest and relocated image-manifest are available.</li>
+<li>The relocated manifest and relocated image-manifest files are available.</li>
 </ul>
 
 <h2>Installation Steps</h2>
@@ -279,12 +282,11 @@
 <div class="note note">In order to perform the install the GCP user account needs to have the &ldquo;Owner&rdquo; role for the GCP project.</div>
 
 <ol>
-<li><p>Verify that the Google Cloud APIs, Kubernetes Engine API, and Container Registry API are enabled in the current GCP project.</p>
+<li><p>Verify that the Google Cloud APIs, and Container Registry API are enabled in the current GCP project.</p>
 <pre class="highlight shell_session"><code>gcloud services list
 </code></pre>
 <pre class="highlight shell_session"><code>NAME                              TITLE
 cloudapis.googleapis.com          Google Cloud APIs
-container.googleapis.com          Kubernetes Engine API
 containerregistry.googleapis.com  Container Registry API
 . . .
 </code></pre>
@@ -292,40 +294,124 @@ containerregistry.googleapis.com  Container Registry API
 <p>If necessary enable these services using the <code>gcloud services enable</code> command.</p>
 <pre class="highlight shell_session"><code>gcloud services enable \
     cloudapis.googleapis.com \
-    container.googleapis.com \
     containerregistry.googleapis.com
 </code></pre></li>
-<li><p>Create a new GKE cluster if a suitable one does not already exist. In order to meet <a href="https://github.com/knative/docs/blob/master/install/Knative-with-GKE.md">Knative guidelines</a>, we recommend running Kubernetes version 1.10 or higher, on nodes with 4 vCPUs and 15GB of memory.</p>
-
-<p>The following <code>gcloud</code> CLI command will create a cluster named <code>my-gke-cluster</code> using the most recent version of Kubernetes available in GKE, and three <code>n1-standard-4</code> nodes in the <code>us-east4</code> region.</p>
-<pre class="highlight shell_session"><code>gcloud container clusters create my-gke-cluster \
-    --cluster-version=latest \
-    --machine-type=n1-standard-4 \
-    --enable-autoscaling --min-nodes=1 --max-nodes=3 \
-    --enable-autorepair \
-    --scopes=service-control,service-management,compute-rw,storage-ro,cloud-platform,logging-write,monitoring-write,pubsub,datastore \
-    --num-nodes=3 \
-    --region=us-east4
-</code></pre>
-
-<p>For a list of <a href="https://cloud.google.com/compute/docs/regions-zones/">regions</a> and <a href="https://console.cloud.google.com/iam-admin/quotas?metric=CPUs">quotas</a> for your project run <code>gcloud compute regions list</code>. The command above requires a region with 36 available CPUs.</p></li>
 <li><p>If you haven&rsquo;t already done so, push the relocated images to the GCR registry in the current GCP project using the <code>pfs</code> CLI as shown below where the <code>-i</code> flag is the path to the <a href="/pfs/install-relocate-images.html">previously relocated</a> image manifest file.</p>
 <pre class="highlight shell_session"><code>pfs image push -i pfs-relocated/image-manifest.yaml
 </code></pre></li>
-<li><p>Use <code>kubectl</code> to verify that the target GKE cluster is referenced by the current context.</p>
-<pre class="highlight shell_session"><code>kubectl config current-context
+<li><p>Select a PKS plan and enable privileged containers and escalated privileges.</p>
+
+<p>This step is necessary in order for Istio sidecar injection to function correctly. </p>
+
+<ul>
+<li><p>Using PCF Ops Manager, click on the <code>Pivotal Container Service</code> tile, and select one of the plans from the menu on the left. It is recommended to choose a plan intended for large workloads.</p>
+
+<p>e.g.</p>
+
+<ul>
+<li>a master node VM with 2 CPUs and 8GB of memory</li>
+<li>four worker nodes each with 2 CPUs and 8GB of memory</li>
+</ul></li>
+<li><p>Scroll to the bottom of the plan page and enable both the <strong>Enable Privileged Containers</strong> and <strong>Disable DenyEscalatingExec</strong> checkboxes as shown below.</p>
+
+<p><img alt="Enable privileged mode for containers" src="images/install-on-pks-2.png" /></p></li>
+<li><p>Save your changes and navigate back to the installation dashboard. Click <strong>Review Pending Changes</strong> and then apply them.</p>
+
+<p><img alt="Review pending changes" src="images/install-on-pks-review.png" /></p></li>
+</ul></li>
+<li><p>Log into the PKS environment using your usual credentials. To log in targeting the PKS API server <code>pks-api.example.com</code> as user <code>admin</code> with password <code>adminpassword</code> the following command would be run.</p>
+<pre class="highlight shell_session"><code>pks login -a pks-api.example.com -u admin -p adminpassword
+</code></pre></li>
+<li><p>Create a new PKS cluster being careful to specify the PKS plan which you configured in step 3 above.</p>
+
+<ul>
+<li><p>To create a new cluster called <code>mycluster</code> using the <code>large</code> plan, and an external hostname of <code>myhostname.example.com</code> run:</p>
+<pre class="highlight shell_session"><code>pks create-cluster mycluster \
+    --external-hostname myhostname.example.com \
+    --plan large
 </code></pre>
 
-<div class="note note">The clusters create command should have added a context for the new cluster.</div>
+<p>Track the progress of the create using the <code>pks cluster</code> command. For example, to check on the status of a cluster named <code>mycluster</code> run <code>pks cluster mycluster</code></p>
 
-<p>If necessary you can create a new context for the cluster by retreiving the credentials using a <code>gcloud</code> command. To create a new <code>kubectl</code> context for a cluster named <code>my-gke-cluster</code> in the project and region/zone currently configured for <code>gcloud</code> run:</p>
-<pre class="highlight shell_session"><code>gcloud container clusters get-credentials my-gke-cluster
+<div class="note note">It can take up to 30 minutes for cluster creation to complete.</div></li>
+</ul></li>
+<li><p>Configure a GCP load balancer for the created cluster. This step and the following step are required to make the new PKS on GCP cluster available on the network. Consult your PKS environment administrator if you need assistance in carrying them out.</p>
+
+<ul>
+<li><p>Run the <code>pks cluster</code> command with your cluster name and note the value of <code>Kubernetes Master IP(s)</code>. In the example below the master node IP address is <code>10.0.11.10</code></p>
+<pre class="highlight shell_session"><code>pks cluster mycluster
+</code></pre>
+<pre class="highlight shell_session"><code>Name:                     mycluster
+Plan Name:                large
+UUID:                     65bc21d8-819f-483a-a08b-7c55b500b0a2
+Last Action:              CREATE
+Last Action State:        succeeded
+Last Action Description:  Instance provisioning completed
+Kubernetes Master Host:   myhostname.example.com
+Kubernetes Master Port:   8443
+Worker Nodes:             4
+Kubernetes Master IP(s):  10.0.11.10
+Network Profile Name:
 </code></pre></li>
-<li><p>Grant yourself cluster-admin permissions.</p>
-<pre class="highlight shell_session"><code>kubectl create clusterrolebinding cluster-admin-binding \
-    --clusterrole=cluster-admin \
-    --user=$(gcloud config get-value core/account)
+<li><p>In your <a href="https://console.cloud.google.com/">Google Cloud Platform Console</a> navigate to <strong>Compute Engine &gt; VM instances</strong> and locate the master VM by filtering on <code>Internal IP</code> with the value of the master node IP address. Note the name of this master node VM which will be of the form <code>vm-&lt;guid&gt;</code> and also its zone.</p></li>
+<li><p>Navigate to <strong>Network services &gt; Load balancing</strong> and click <strong>Create Load Balancer</strong>.</p></li>
+<li><p>In the <strong>TCP Load Balancing</strong> pane, click <strong>Start configuration</strong>.</p></li>
+<li><p>Accept all of the defaults on the next page and click <strong>Continue</strong>.</p></li>
+<li><p>In the resulting page give the load balancer a name</p></li>
+<li><p>Click the <strong>Backend configuration</strong> section and set the region value to be consistent with the zone of the cluster master VM (e.g. if the master VM is in zone <code>europe-west1-c</code> then set the region to be <code>europe-west-1</code>).</p></li>
+<li><p>Click the <strong>Select existing instances</strong> tab and then select your cluster&rsquo;s master node VM in the dropdown.
+<img alt="Create PKS cluster load balancer" src="images/install-on-pks-3.png" /></p></li>
+<li><p>Click <strong>Frontend configuration</strong> and give it the same name as the load balancer.</p></li>
+<li><p>In the <strong>IP</strong> dropdown select the option to <strong>Create IP address</strong>.</p></li>
+<li><p>In the resulting <strong>reserve a new static IP address</strong> box give the same name as the frontend load balancer and then click <strong>Reserve</strong>.</p></li>
+<li><p>Enter the value <code>8443</code> in the <strong>Port</strong> field.</p></li>
+<li><p>Click <strong>Done</strong>.</p></li>
+<li><p>Review the new load balancer settings and then click <strong>Create</strong>.</p></li>
+</ul>
+
+<p>It will take several seconds before the new load balancer becomes available.</p></li>
+<li><p>Configure the DNS record for the created cluster.</p>
+
+<ul>
+<li>In the <a href="https://console.cloud.google.com/">Google Cloud Platform Console</a> page for the cluster load balancer (<strong>Network services &gt; Load balancing</strong>) note the IP address of the <strong>Frontend</strong> of the load balancer.</li>
+<li>Navigate to <strong>Network services &gt; Cloud DNS</strong> and click the appropriate DNS zone for your PKS cluster (its DNS name will be the domain of the PKS environment Ops Manager).</li>
+<li>Click <strong>Add record set</strong>.</li>
+<li>In the next page add a <em>prefix</em> to the DNS name so that the complete name matches the <code>--external-hostname</code> value used when the cluster was created.</li>
+<li>In the <strong>IPv4 Address</strong> field enter the IP address (only the IP address, do not include the port number) of the <strong>Frontend</strong> of the cluster&rsquo;s load balancer.</li>
+<li><p>Click <strong>Create</strong>.</p>
+
+<div class="note note">It can take several minutes for the DNS record information to propagate around the network. During this time &ldquo;unable to connect&rdquo; or “no such host” errors may occur when attempting to use kubectl with the cluster.</div></li>
+</ul></li>
+<li><p>Use the <code>pks</code> CLI to retrieve credentials and change your kubectl context to your PKS cluster.</p>
+
+<ul>
+<li><p>To change context to a PKS cluster named <code>mycluster</code> run the following:</p>
+<pre class="highlight shell_session"><code>pks get-credentials mycluster
 </code></pre></li>
+<li><p>Verify that the current context is as expected using <code>kubectl</code>:</p>
+<pre class="highlight shell_session"><code>kubectl config current-context
+</code></pre>
+<pre class="highlight shell_session"><code>mycluster
+</code></pre></li>
+</ul></li>
+<li><p>In order to authorise your PKS cluster to pull images from your local GCP project&rsquo;s GCR registry it is necessary to update the IAM permissions of the service account used by the worker nodes.</p>
+
+<ul>
+<li><p>To determine this service account go to the PCF Ops Manager set up when your PKS environment was created, click the <strong>Pivotal Container Service</strong> tile, and then navigate to the <strong>Kubernetes Cloud Provider</strong> configuration page. The <strong>GCP Worker Service Account ID</strong> field will contain the ID of the worker nodes&rsquo; service account.</p>
+
+<p><img alt="Kubernetes Cloud Provider configuration page" src="images/install-on-pks-1.png" /></p></li>
+<li><p>Export the name of the serviceaccount in an environment variable E.g.</p>
+<pre class="highlight plaintext"><code>export WORKER_SERVICE_ACCOUNT=mycluster-pks-worker-node@my-gcp-project.iam.gserviceaccount.com
+</code></pre></li>
+<li><p>Export the ID of your current GCP project E.g.</p>
+<pre class="highlight plaintext"><code>export GCP_PROJECT_ID=$(gcloud config get-value core/project)
+</code></pre></li>
+<li><p>Use the <code>gsutil iam ch</code> command to add the objectViewer role, permitting the service account to read from the GCS storage bucket backing your project&rsquo;s GCR registry.</p>
+<pre class="highlight shell_session"><code>gsutil iam ch \
+    serviceAccount:$WORKER_SERVICE_ACCOUNT:objectViewer \
+    gs://artifacts.$GCP_PROJECT_ID.appspot.com
+</code></pre></li>
+</ul></li>
 <li><p>Install PFS using the <code>pfs</code> CLI as shown below where the <code>-m</code> flag is the path to the previously relocated manifest file.</p>
 <pre class="highlight shell_session"><code>pfs system install -m pfs-relocated/manifest.yaml
 </code></pre>
@@ -333,41 +419,38 @@ containerregistry.googleapis.com  Container Registry API
 <p>After the command completes pods should be successfully running in the <code>istio-system</code>, <code>knative-build</code>, <code>knative-eventing</code>, <code>knative-serving</code>, and <code>kube-system</code> namespaces similar to the output from <code>kubectl get pods</code> shown below.</p>
 <pre class="highlight shell_session"><code>kubectl get pods --all-namespaces
 </code></pre>
-<pre class="highlight shell_session"><code>NAMESPACE          NAME                                                       READY     STATUS    RESTARTS   AGE
-istio-system       istio-citadel-79964f8bd9-dqpbq                             1/1       Running   0          2m
-istio-system       istio-egressgateway-57988996cc-lt9n6                       1/1       Running   0          2m
-istio-system       istio-galley-556fbd8687-k7flt                              1/1       Running   0          2m
-istio-system       istio-ingressgateway-69fd7b888-hsqsr                       1/1       Running   0          2m
-istio-system       istio-pilot-5764c7f956-zqtpm                               2/2       Running   0          2m
-istio-system       istio-policy-57f6799f46-89nqx                              2/2       Running   0          2m
-istio-system       istio-sidecar-injector-7548c8cd9b-rs9kc                    1/1       Running   0          2m
-istio-system       istio-telemetry-db55c4c7c-jbtww                            2/2       Running   0          2m
-istio-system       knative-ingressgateway-545c57fd8b-c2kcn                    1/1       Running   0          35s
-knative-build      build-controller-655bdd95f4-zzzsp                          1/1       Running   0          35s
-knative-build      build-webhook-775c8f5996-lmxk9                             1/1       Running   0          35s
-knative-eventing   eventing-controller-ddb4d966-dcdgq                         1/1       Running   0          32s
-knative-eventing   stub-clusterbus-dispatcher-8679cd49bd-mbrzd                2/2       Running   0          25s
-knative-eventing   webhook-6c4c867647-dtpkb                                   1/1       Running   0          32s
-knative-serving    activator-5c4d788788-hr49t                                 2/2       Running   0          34s
-knative-serving    activator-5c4d788788-nbtkj                                 2/2       Running   0          34s
-knative-serving    activator-5c4d788788-shfsh                                 2/2       Running   0          34s
-knative-serving    autoscaler-5459944c66-r6tlt                                2/2       Running   0          34s
-knative-serving    controller-7f7f76cb4b-k7ffn                                1/1       Running   0          33s
-knative-serving    webhook-59457b697c-s6599                                   1/1       Running   0          33s
-kube-system        event-exporter-v0.2.1-7978ddf677-jqwx6                     2/2       Running   0          4m
-kube-system        fluentd-gcp-scaler-5d85d4b48b-47dfn                        1/1       Running   0          4m
-kube-system        fluentd-gcp-v3.1.0-fjqsb                                   2/2       Running   0          4m
-kube-system        fluentd-gcp-v3.1.0-l82bx                                   2/2       Running   0          4m
-kube-system        fluentd-gcp-v3.1.0-nq8tn                                   2/2       Running   0          4m
-kube-system        heapster-v1.6.0-beta.1-7d8cbf84b6-tg2pg                    3/3       Running   0          3m
-kube-system        kube-dns-548976df6c-k76tk                                  4/4       Running   0          4m
-kube-system        kube-dns-548976df6c-lzpjp                                  4/4       Running   0          4m
-kube-system        kube-dns-autoscaler-67c97c87fb-sqtns                       1/1       Running   0          4m
-kube-system        kube-proxy-gke-riff-cluster-2-default-pool-64c434d3-4zqc   1/1       Running   0          4m
-kube-system        kube-proxy-gke-riff-cluster-2-default-pool-64c434d3-pccc   1/1       Running   0          4m
-kube-system        kube-proxy-gke-riff-cluster-2-default-pool-64c434d3-x970   1/1       Running   0          4m
-kube-system        l7-default-backend-5bc54cfb57-5k6fj                        1/1       Running   0          4m
-kube-system        metrics-server-v0.2.1-fd596d746-vgbck                      2/2       Running   0          4m
+<pre class="highlight shell_session"><code>NAMESPACE          NAME                                          READY     STATUS    RESTARTS   AGE
+istio-system       istio-citadel-6dddb76bff-fhhd9                1/1       Running   0          1m
+istio-system       istio-egressgateway-6ffcb89f5-s5twg           1/1       Running   0          1m
+istio-system       istio-galley-76db9d5457-6whqt                 1/1       Running   0          1m
+istio-system       istio-ingressgateway-b44b59658-ndpkz          1/1       Running   0          1m
+istio-system       istio-pilot-78668c67bd-swmj9                  2/2       Running   0          1m
+istio-system       istio-policy-78fd576646-l8rpd                 2/2       Running   0          1m
+istio-system       istio-sidecar-injector-646b6f4d4b-wt9g2       1/1       Running   0          1m
+istio-system       istio-telemetry-56fbcd7b6f-s6bpg              2/2       Running   0          1m
+istio-system       knative-ingressgateway-6d8d7b56f6-mg9qt       1/1       Running   0          36s
+knative-build      build-controller-bcfdddf77-nb5f6              1/1       Running   0          37s
+knative-build      build-webhook-7dccdd6ff8-qnb4p                1/1       Running   0          37s
+knative-eventing   eventing-controller-5bb797f774-nhhj4          1/1       Running   0          31s
+knative-eventing   stub-clusterbus-dispatcher-5658748c67-lhddz   2/2       Running   0          15s
+knative-eventing   webhook-685f94854c-l9z7x                      1/1       Running   0          31s
+knative-serving    activator-779cf7cd8-2m984                     2/2       Running   0          34s
+knative-serving    activator-779cf7cd8-nj76w                     2/2       Running   0          34s
+knative-serving    activator-779cf7cd8-r6sgm                     2/2       Running   0          34s
+knative-serving    autoscaler-85984647cf-9d5wl                   2/2       Running   0          34s
+knative-serving    controller-6ff4f74bd9-cc7hz                   1/1       Running   0          33s
+knative-serving    webhook-5d898886bf-xlps4                      1/1       Running   0          33s
+kube-system        heapster-6d5f964dbd-fgrlk                     1/1       Running   0          1h
+kube-system        kube-dns-6b697fcdbd-76p4d                     3/3       Running   0          1h
+kube-system        kubernetes-dashboard-785584f46b-bd68t         1/1       Running   0          1h
+kube-system        metrics-server-5f68584c5b-n9wh4               1/1       Running   0          1h
+kube-system        monitoring-influxdb-54759946d4-wv29g          1/1       Running   0          1h
+kube-system        telemetry-agent-68c6647967-886bd              1/1       Running   0          1h
+pks-system         fluent-bit-dmrcv                              1/1       Running   0          1h
+pks-system         fluent-bit-fcvhk                              1/1       Running   0          1h
+pks-system         fluent-bit-lbwns                              1/1       Running   0          1h
+pks-system         fluent-bit-s8j7r                              1/1       Running   0          1h
+pks-system         sink-controller-7c85744bd6-4lbwq              1/1       Running   0          1h
 </code></pre></li>
 </ol>
 

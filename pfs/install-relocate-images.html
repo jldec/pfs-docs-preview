@@ -197,7 +197,8 @@
 <ul>
   <li><a href="/pfs/install-download.html">Download PFS from Pivotal Network</a></li>
   <li><a href="/pfs/install-relocate-images.html">Relocate Container Images</a></li>
-  <li><a href="/pfs/install-on-pks.html">Install on PKS</a></li>
+  <li><a href="/pfs/install-on-pks-gcp.html">Install on PKS on GCP</a></li>
+  <li><a href="/pfs/install-on-pks-vsphere.html">Install on PKS on vSphere</a></li>
   <li><a href="/pfs/install-on-gke.html">Install on GKE</a></li>
   <li><a href="/pfs/install-on-minikube.html">Install on Minikube</a></li>
   <li><a href="/pfs/install-on-docker.html">Install on Docker Desktop</a></li>
@@ -259,7 +260,7 @@
         <div class="to-top" id="js-to-top">
           <a href="#top" title="back to top"></a>
         </div>
-        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1549315924000"></span></p>
+        <p>Page last updated: <span data-behavior="DisplayModifiedDate" data-modified-date="1550847087000"></span></p>
 
 <p>This topic describes how to <a href="/pfs/concepts-registries.html">relocate</a> the container images supplied in the PFS distribution.</p>
 
@@ -270,10 +271,18 @@
 <li>The <code>pfs</code> CLI has been <a href="/pfs/install-download.html">downloaded and installed</a>.</li>
 <li><code>docker</code> is <a href="https://docs.docker.com/install/">installed</a> and a docker daemon is running on your development machine.</li>
 <li>A container registry is available for hosting images.<br>
-To install on your development machine, first follow the instructions to install a local registry
+
+<ul>
+<li>To install PFS on a cluster not running on GCP you can use your own <a href="/pfs/install-on-pks-vsphere.html#registry-configuration">registry</a>.</li>
+<li>To install PFS on your development machine, first follow the instructions to install a local registry
 for <a href="/pfs/install-on-minikube.html#registry-install">Minikube</a> or <a href="/pfs/install-on-docker.html#registry-install">Docker Desktop</a>.</li>
+</ul></li>
 <li>The docker CLI can push images to the registry.
-(See <a href="/pfs/ref-google-cloud.html">Google Cloud</a> to configure a docker credential helper to push images to GCR.)</li>
+
+<ul>
+<li>for Docker Hub or other registries using basic authentication log in using <code>docker login &lt;registry-server&gt;</code></li>
+<li>for GCR see <a href="/pfs/ref-google-cloud.html">Configuring Google Cloud</a> to configure a docker credential helper to push images.</li>
+</ul></li>
 </ul>
 
 <h3>Step 1: Create the Relocated Distribution</h3>
@@ -358,6 +367,9 @@ You may notice a message `Skipping IMAGE-NAME no binary image in the image manif
 <div class="container">
   <footer class="site-footer-links">
     <div class="copyright">
+  Questions or feedback? <a href="mailto:pfs-support@pivotal.io">Email pfs-support@pivotal.io</a>
+  <br/>
+  <br/>
   <a href='https://pivotal.io/privacy-policy'  target="_blank">Privacy Policy</a> | 
   <a href='https://pivotal.io/terms-of-use'  target="_blank">Terms of Use</a>
   <div id="teconsent"></div>
@@ -367,9 +379,6 @@ You may notice a message `Skipping IMAGE-NAME no binary image in the image manif
   &copy; 2019 <a href='https://pivotal.io' target="_blank">Pivotal Software</a>, Inc. All Rights Reserved.
   <br/>
   <br/>
-</div>
-<div class="support">
-  Need help? <a href="http://support.pivotal.io" target="_blank">Visit Support</a>
 </div>
 
 
